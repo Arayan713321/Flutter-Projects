@@ -287,127 +287,111 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
+        centerTitle: true,
         leading: Center(
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-              ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: AppColors.textPrimary),
-            ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        title: Text(_isEditMode ? 'Edit Task' : 'New Task', style: AppTextStyles.titleLarge),
+        title: Text(
+          _isEditMode ? 'Modify Task' : 'New Assignment',
+          style: AppTextStyles.titleMedium.copyWith(fontSize: 18),
+        ),
         actions: [
           if (_isEditMode)
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+              tooltip: "Delete Task",
               onPressed: _confirmDelete,
             ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(AppDimens.pagePadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("TITLE", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
+              _buildSectionTitle("IDENTIFICATION"),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _titleController,
                 onChanged: (_) => _onFieldChanged(),
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
-                decoration: const InputDecoration(
-                  hintText: "What needs to be done?",
-                  prefixIcon: Icon(Icons.title_rounded, color: AppColors.textMuted),
-                ),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+                decoration: _inputDecoration("Task Title", Icons.edit_note_rounded),
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Title is required' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("DESCRIPTION", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
+              _buildSectionTitle("DETAILS"),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _descController,
                 onChanged: (_) => _onFieldChanged(),
                 style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
                 maxLines: 4,
                 minLines: 3,
-                decoration: const InputDecoration(
-                  hintText: "Add details...",
-                  prefixIcon: Icon(Icons.notes_rounded, color: AppColors.textMuted),
-                ),
+                decoration: _inputDecoration("Write some details...", Icons.description_outlined),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("DUE DATE", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: _pickDate,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: _dueDate != null ? Border.all(color: AppColors.primary, width: 0.5) : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.event_rounded, color: _dueDate != null ? AppColors.primary : AppColors.textMuted),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _dueDate != null ? _formatDate(_dueDate!) : "Pick a due date",
-                          style: _dueDate != null ? AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary) : AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle("DUE DATE"),
+                        const SizedBox(height: 12),
+                        _buildClickableField(
+                          label: _dueDate != null ? _formatDate(_dueDate!) : "Set Date",
+                          icon: Icons.calendar_month_rounded,
+                          active: _dueDate != null,
+                          onTap: _pickDate,
                         ),
-                      ),
-                      const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle("STATUS"),
+                        const SizedBox(height: 12),
+                        _buildStatusDropdown(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("STATUS", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
-              _StatusSegmentedControl(
-                selected: _status,
-                onChanged: (val) {
-                  setState(() => _status = val);
-                  _onFieldChanged();
-                },
-              ),
-              const SizedBox(height: 20),
-
-              const Text("BLOCKED BY (OPTIONAL)", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
+              _buildSectionTitle("DEPENDENCIES"),
+              const SizedBox(height: 12),
               DropdownButtonFormField<int?>(
                 value: _blockedById,
                 items: [
-                  const DropdownMenuItem(value: null, child: Text("None — not blocked")),
+                  const DropdownMenuItem(value: null, child: Text("No blocker")),
                   ...otherTasks.map((t) => DropdownMenuItem(value: t.id, child: Text(t.title, overflow: TextOverflow.ellipsis))),
                 ],
                 onChanged: (val) {
                   setState(() => _blockedById = val);
                   _onFieldChanged();
                 },
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.link_rounded, color: AppColors.textMuted),
-                ),
+                decoration: _inputDecoration("Blocked by another task?", Icons.lock_outline_rounded),
+                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                dropdownColor: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("ATTACHMENTS", style: AppTextStyles.labelMedium),
-              const SizedBox(height: 8),
+              _buildSectionTitle("MEDIA ATTACHMENTS"),
+              const SizedBox(height: 12),
               _ImageAttachmentPicker(
                 imagePath: _imagePath,
                 onPick: _pickImage,
@@ -416,7 +400,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
                   _onFieldChanged();
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
 
               _SaveButton(
                 isEdit: _isEditMode,
@@ -430,7 +414,69 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
       ),
     );
   }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(title, style: AppTextStyles.labelMedium.copyWith(fontSize: 11, color: AppColors.textMuted));
+  }
+
+  InputDecoration _inputDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+      fillColor: AppColors.surface,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.cardBorder, width: 1.5)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.cardBorder, width: 1.5)),
+    );
+  }
+
+  Widget _buildClickableField({required String label, required IconData icon, required bool active, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: active ? AppColors.primary : AppColors.cardBorder, width: 1.5),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: active ? AppColors.primary : AppColors.textMuted, size: 20),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: active ? AppColors.textPrimary : AppColors.textMuted, fontWeight: active ? FontWeight.w600 : null), overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1.5),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<TaskStatus>(
+          value: _status,
+          isExpanded: true,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20),
+          items: TaskStatus.values.map((s) => DropdownMenuItem(value: s, child: Text(s.label, style: AppTextStyles.bodyMedium))).toList(),
+          onChanged: (val) {
+            if (val != null) {
+              setState(() => _status = val);
+              _onFieldChanged();
+            }
+          },
+        ),
+      ),
+    );
+  }
 }
+
 
 class _StatusSegmentedControl extends StatelessWidget {
   const _StatusSegmentedControl({required this.selected, required this.onChanged});

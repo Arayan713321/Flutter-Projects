@@ -81,29 +81,17 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
     final inProgressCount = allTasks.where((t) => t.status == 'In Progress').length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5FA),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
-            // Top glow decoration
+            // Subtle decorative elements
             Positioned(
-              top: -60,
-              right: -40,
+              top: -100,
+              right: -100,
               child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.06),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              top: -30,
-              right: 60,
-              child: Container(
-                width: 120,
-                height: 120,
+                width: 300,
+                height: 300,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.04),
                   shape: BoxShape.circle,
@@ -112,44 +100,44 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
             ),
 
             CustomScrollView(
+              physics: const BouncingScrollPhysics(),
               slivers: [
-                // HEADER SECTION
+                // PREMIUM HEADER
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_getGreeting(), style: AppTextStyles.bodyMedium),
-                            const SizedBox(height: 4),
-                            const Text("My Tasks", style: AppTextStyles.headline),
+                            Text(_getGreeting(), style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: AppColors.textMuted)),
+                            const SizedBox(height: 6),
+                            const Text("My Productivity", style: AppTextStyles.headline),
                           ],
                         ),
                         Container(
-                          width: 54,
-                          height: 54,
+                          width: 56,
+                          height: 56,
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(16),
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.1),
+                                color: AppColors.primary.withOpacity(0.2),
                                 blurRadius: 15,
-                                offset: const Offset(0, 5),
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(18),
                             child: Image.asset(
                               'assets/tasks.png',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) => const Center(
-                                child: Icon(Icons.task_alt_rounded, color: AppColors.primary),
+                                child: Icon(Icons.bolt_rounded, color: Colors.white, size: 28),
                               ),
                             ),
                           ),
@@ -159,33 +147,32 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
                   ),
                 ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-                // SEARCH BAR
+                // SEARCH BAR - REFINED
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                     child: Container(
-                      height: 48,
-                      width: double.infinity,
+                      height: 56,
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.cardBorder, width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 15,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
                       child: TextField(
                         controller: _searchController,
                         onChanged: _onSearchChanged,
+                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                         decoration: InputDecoration(
-                          hintText: "Search tasks...",
+                          hintText: "Search your tasks...",
                           hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted),
-                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary, size: 22),
                           suffixIcon: searchQuery.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.close_rounded, color: AppColors.textMuted),
@@ -198,36 +185,51 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                       ),
                     ),
                   ),
                 ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-                // STATS ROW
+                // STATS ROW - PREMIUM
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       children: [
                         Expanded(child: _StatCard(count: totalCount, label: "Total", color: AppColors.primary)),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(child: _StatCard(count: doneCount, label: "Done", color: AppColors.success)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _StatCard(count: inProgressCount, label: "In Progress", color: AppColors.warning)),
+                        const SizedBox(width: 12),
+                        Expanded(child: _StatCard(count: inProgressCount, label: "Active", color: AppColors.warning)),
                       ],
                     ),
                   ),
                 ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-                // FILTER CHIPS ROW
+                // SECTION TITLE & FILTER
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedFilter == null ? "Recent Tasks" : "$selectedFilter Tasks",
+                          style: AppTextStyles.titleMedium.copyWith(fontSize: 18),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.tune_rounded, size: 18, color: AppColors.textMuted),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                // FILTER CHIPS
                 SliverToBoxAdapter(
                   child: _FilterRow(
                     selected: selectedFilter,
@@ -237,92 +239,106 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
                   ),
                 ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
                 // TASK LIST
                 tasksAsync.when(
                   loading: () => const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    child: Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 3)),
                   ),
                   error: (e, _) => SliverFillRemaining(
-                    child: Center(child: Text("Error: $e")),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+                          const SizedBox(height: 16),
+                          Text("Something went wrong: $e", style: AppTextStyles.bodyMedium),
+                        ],
+                      ),
+                    ),
                   ),
                   data: (_) {
                     if (filteredTasks.isEmpty) {
                       return SliverFillRemaining(
                         hasScrollBody: false,
-                        child: _EmptyState(),
+                        child: _EmptyState(query: searchQuery),
                       );
                     }
 
                     final isSearchingOrFiltering = searchQuery.isNotEmpty || selectedFilter != null;
 
-                    return SliverReorderableList(
-                      itemBuilder: (context, index) {
-                        final task = filteredTasks[index];
-                        return ReorderableDelayedDragStartListener(
-                          key: ValueKey(task.id),
-                          index: index,
-                          enabled: !isSearchingOrFiltering,
-                          child: _StaggeredListEntrance(
+                    return SliverPadding(
+                      padding: const EdgeInsets.only(bottom: 100),
+                      sliver: SliverReorderableList(
+                        itemBuilder: (context, index) {
+                          final task = filteredTasks[index];
+                          return ReorderableDelayedDragStartListener(
+                            key: ValueKey(task.id),
                             index: index,
-                            child: Dismissible(
-                              key: ValueKey("dismiss_${task.id}"),
-                              direction: DismissDirection.endToStart,
-                              background: Container(
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.only(right: 20),
-                                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Colors.redAccent, Colors.red],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                                child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 28),
-                              ),
-                              confirmDismiss: (direction) async {
-                                final messenger = ScaffoldMessenger.of(context);
-                                final deletedTask = task;
-                                
-                                await ref.read(tasksProvider.notifier).deleteTask(task.id);
-                                
-                                messenger.hideCurrentSnackBar();
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: const Text("Task deleted"),
-                                    action: SnackBarAction(
-                                      label: "UNDO",
-                                      onPressed: () {
-                                        ref.read(tasksProvider.notifier).createTask(deletedTask);
-                                      },
+                            enabled: !isSearchingOrFiltering,
+                            child: _StaggeredListEntrance(
+                              index: index,
+                              child: Dismissible(
+                                key: ValueKey("dismiss_${task.id}"),
+                                direction: DismissDirection.endToStart,
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(right: 32),
+                                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFFF8B8B), Color(0xFFFF5252)],
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
                                     ),
+                                    borderRadius: BorderRadius.circular(AppDimens.cardRadius),
                                   ),
-                                );
-                                return true;
-                              },
-                              child: TaskCard(
-                                task: task,
-                                allTasks: allTasks,
-                                searchQuery: searchQuery,
-                                onTap: () => _navigateToEdit(task),
+                                  child: const Icon(Icons.delete_sweep_rounded, color: Colors.white, size: 32),
+                                ),
+                                confirmDismiss: (direction) async {
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  final deletedTask = task;
+                                  
+                                  await ref.read(tasksProvider.notifier).deleteTask(task.id);
+                                  
+                                  messenger.hideCurrentSnackBar();
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: AppColors.textPrimary,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      content: const Text("Task moved to trash"),
+                                      action: SnackBarAction(
+                                        label: "UNDO",
+                                        textColor: AppColors.primaryLight,
+                                        onPressed: () {
+                                          ref.read(tasksProvider.notifier).createTask(deletedTask);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                  return true;
+                                },
+                                child: TaskCard(
+                                  task: task,
+                                  allTasks: allTasks,
+                                  searchQuery: searchQuery,
+                                  onTap: () => _navigateToEdit(task),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      itemCount: filteredTasks.length,
-                      onReorder: (oldIdx, newIdx) {
-                        if (isSearchingOrFiltering) return;
-                        ref.read(tasksProvider.notifier).reorderTasks(oldIdx, newIdx);
-                      },
+                          );
+                        },
+                        itemCount: filteredTasks.length,
+                        onReorder: (oldIdx, newIdx) {
+                          if (isSearchingOrFiltering) return;
+                          ref.read(tasksProvider.notifier).reorderTasks(oldIdx, newIdx);
+                        },
+                      ),
                     );
                   },
                 ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ),
           ],
@@ -342,15 +358,15 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 76,
+      height: 84,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border(left: BorderSide(color: color, width: 3)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.cardBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.06),
-            blurRadius: 12,
+            color: color.withOpacity(0.06),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -360,15 +376,15 @@ class _StatCard extends StatelessWidget {
         children: [
           TweenAnimationBuilder<int>(
             tween: IntTween(begin: 0, end: count),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeOutCubic,
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutBack,
             builder: (context, value, _) => Text(
               value.toString(),
-              style: AppTextStyles.titleLarge.copyWith(color: color),
+              style: AppTextStyles.titleLarge.copyWith(color: color, fontSize: 22),
             ),
           ),
-          const SizedBox(height: 2),
-          Text(label, style: AppTextStyles.bodySmall),
+          const SizedBox(height: 4),
+          Text(label.toUpperCase(), style: AppTextStyles.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 10)),
         ],
       ),
     );
@@ -383,36 +399,50 @@ class _FilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filters = [null, 'To-Do', 'In Progress', 'Done'];
-    final labels = ['All', '📋 To-Do', '⚡ In Progress', '✅ Done'];
+    final labels = ['All', 'To-Do', 'Progress', 'Done'];
+    final icons = [Icons.apps_rounded, Icons.list_rounded, Icons.bolt_rounded, Icons.check_circle_rounded];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: List.generate(filters.length, (i) {
           final isSelected = selected == filters[i];
           return Padding(
-            padding: EdgeInsets.only(right: i == filters.length - 1 ? 0 : 8),
+            padding: EdgeInsets.only(right: i == filters.length - 1 ? 0 : 12),
             child: GestureDetector(
               onTap: () => onSelected(filters[i]),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : AppColors.surface,
-                  borderRadius: BorderRadius.circular(30),
-                  border: isSelected ? null : Border.all(color: AppColors.divider),
+                  gradient: isSelected ? AppColors.primaryGradient : null,
+                  color: isSelected ? null : AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: isSelected ? null : Border.all(color: AppColors.cardBorder, width: 1.5),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8)]
+                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))]
                       : null,
                 ),
-                child: Text(
-                  labels[i],
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(
+                      icons[i],
+                      size: 16,
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      labels[i],
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        color: isSelected ? Colors.white : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -424,6 +454,9 @@ class _FilterRow extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.query});
+  final String query;
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -432,38 +465,43 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             Container(
-              width: 140,
-              height: 140,
+              width: 160,
+              height: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.05),
+                color: AppColors.primary.withOpacity(0.04),
               ),
               child: Center(
-                child: Image.asset(
-                  'assets/tasks.png',
-                  width: 100,
-                  height: 100,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.task_alt_rounded, size: 60, color: AppColors.primary),
+                child: Icon(
+                  query.isEmpty ? Icons.auto_awesome_rounded : Icons.search_off_rounded,
+                  size: 80,
+                  color: AppColors.primary.withOpacity(0.2),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            const Text("No tasks yet", style: AppTextStyles.titleLarge),
-            const SizedBox(height: 8),
-            const Text(
-              "Tap + to create your first task",
+            const SizedBox(height: 32),
+            Text(
+              query.isEmpty ? "All caught up" : "No results found",
+              style: AppTextStyles.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              query.isEmpty 
+                  ? "You don't have any tasks right now.\nTap the button below to start."
+                  : "We couldn't find any tasks matching '$query'.\nTry a different keyword.",
               style: AppTextStyles.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 }
+
 
 class _StaggeredListEntrance extends StatefulWidget {
   const _StaggeredListEntrance({required this.child, required this.index});

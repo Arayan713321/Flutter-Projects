@@ -57,163 +57,198 @@ class TaskCard extends StatelessWidget {
     // ── Assemble card ──────────────────────────────────────────────────────────
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 300),
-      opacity: isBlocked ? 0.5 : 1.0,
+      opacity: isBlocked ? 0.6 : 1.0,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
           color: isBlocked ? AppColors.blocked : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: isBlocked
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.07),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                  )
-                ],
+          borderRadius: BorderRadius.circular(AppDimens.cardRadius),
+          border: Border.all(
+            color: isBlocked ? AppColors.divider : AppColors.cardBorder,
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isBlocked 
+                  ? Colors.black.withOpacity(0.02) 
+                  : AppColors.primary.withOpacity(0.08),
+              blurRadius: isBlocked ? 8 : 24,
+              offset: const Offset(0, 8),
+            )
+          ],
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(18),
-            splashColor: AppColors.primaryLight,
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ROW 1: Title + Status chip
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: HighlightedText(
-                          text: task.title,
-                          query: searchQuery,
-                          baseStyle: AppTextStyles.titleMedium,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      StatusChip(status: taskStatus),
-                    ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppDimens.cardRadius),
+          child: Stack(
+            children: [
+              // Left status indicator bar
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: isBlocked ? AppColors.textMuted : taskStatus.color,
                   ),
-
-                  // Image Row
-                  if (task.imagePath != null) ...[
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        File(task.imagePath!),
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ],
-
-                  // Blocked banner if applicable
-                  if (isBlocked && blocker != null)
-                    Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.errorLight,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.lock_rounded, size: 12, color: AppColors.error),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              "Blocked by: ${blocker.title}",
-                              style: AppTextStyles.labelSmall.copyWith(color: AppColors.error),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // ROW 2: Description
-                  if (task.description.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    HighlightedText(
-                      text: task.description,
-                      query: searchQuery,
-                      baseStyle: AppTextStyles.bodyMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-
-                  const Divider(),
-
-                  // ROW 3: Bottom metadata row
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today_rounded,
-                            size: 13,
-                            color: isOverdue ? AppColors.error : AppColors.textMuted,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatDate(task.dueDate),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: isOverdue ? AppColors.error : AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      if (task.blockedById != null && blocker != null && !isBlocked)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.successLight,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.lock_open_rounded,
-                                size: 11,
-                                color: AppColors.success,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                "Unblocked",
-                                style: AppTextStyles.labelSmall.copyWith(color: AppColors.success),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
+              
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  splashColor: AppColors.primary.withOpacity(0.05),
+                  highlightColor: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ROW 1: Title + Status chip
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: HighlightedText(
+                                text: task.title,
+                                query: searchQuery,
+                                baseStyle: AppTextStyles.titleMedium.copyWith(
+                                  color: isBlocked ? AppColors.textMuted : AppColors.textPrimary,
+                                  decoration: taskStatus == TaskStatus.done ? TextDecoration.lineThrough : null,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            StatusChip(status: taskStatus),
+                          ],
+                        ),
+
+                        // Image Row with premium framing
+                        if (task.imagePath != null) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.file(
+                                File(task.imagePath!),
+                                height: 160,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                              ),
+                            ),
+                          ),
+                        ],
+
+                        // Blocked banner if applicable
+                        if (isBlocked && blocker != null)
+                          Container(
+                            margin: const EdgeInsets.only(top: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.error.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.error.withOpacity(0.1), width: 1),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lock_person_rounded, size: 14, color: AppColors.error),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "Waiting for: ${blocker.title}",
+                                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.error, letterSpacing: 0),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // ROW 2: Description
+                        if (task.description.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          HighlightedText(
+                            text: task.description,
+                            query: searchQuery,
+                            baseStyle: AppTextStyles.bodyMedium.copyWith(
+                              color: isBlocked ? AppColors.textMuted : AppColors.textSecondary,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+
+                        const SizedBox(height: 16),
+                        const Divider(height: 1),
+                        const SizedBox(height: 12),
+
+                        // ROW 3: Bottom metadata row
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isOverdue ? AppColors.error.withOpacity(0.1) : AppColors.background,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_rounded,
+                                    size: 14,
+                                    color: isOverdue ? AppColors.error : AppColors.textMuted,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _formatDate(task.dueDate),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isOverdue ? AppColors.error : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
+                            if (task.blockedById != null && blocker != null && !isBlocked)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.success.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.success),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "Unlocked",
+                                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.success),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -228,29 +263,20 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: status.bgColor,
-        borderRadius: BorderRadius.circular(10),
+        color: status.color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: status.color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            status.label,
-            style: AppTextStyles.labelSmall.copyWith(color: status.color),
-          ),
-        ],
+      child: Text(
+        status.label.toUpperCase(),
+        style: AppTextStyles.labelSmall.copyWith(
+          color: status.color,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }
 }
+

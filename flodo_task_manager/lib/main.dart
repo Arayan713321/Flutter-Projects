@@ -158,32 +158,48 @@ class _LoadingShimmerState extends State<_LoadingShimmer>
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppDimens.pagePadding),
+          padding: const EdgeInsets.symmetric(horizontal: AppDimens.pagePadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
-              Container(width: 140, height: 32, decoration: _shimmerDecoration),
-              const SizedBox(height: 8),
-              Container(width: 100, height: 20, decoration: _shimmerDecoration),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
+              Container(
+                width: 180,
+                height: 32,
+                decoration: _shimmerDecoration.copyWith(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: 120,
+                height: 20,
+                decoration: _shimmerDecoration.copyWith(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(height: 48),
               Row(
                 children: List.generate(3, (i) => Expanded(
                   child: Container(
-                    height: 80,
-                    margin: EdgeInsets.only(right: i < 2 ? 10 : 0),
-                    decoration: _shimmerDecoration,
+                    height: 84,
+                    margin: EdgeInsets.only(right: i < 2 ? 12 : 0),
+                    decoration: _shimmerDecoration.copyWith(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
                   ),
                 )),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               Expanded(
                 child: ListView.builder(
                   itemCount: 4,
                   itemBuilder: (_, __) => Container(
-                    height: 120,
+                    height: 110,
                     margin: const EdgeInsets.only(bottom: 16),
-                    decoration: _shimmerDecoration,
+                    decoration: _shimmerDecoration.copyWith(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
               ),
@@ -193,6 +209,7 @@ class _LoadingShimmerState extends State<_LoadingShimmer>
       ),
     );
   }
+
 
   BoxDecoration get _shimmerDecoration => BoxDecoration(
     borderRadius: BorderRadius.circular(18),
