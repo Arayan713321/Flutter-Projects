@@ -67,6 +67,91 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
     );
   }
 
+  Future<bool> _showDeleteConfirmation(BuildContext context, Task task) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            )
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 32),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(color: AppColors.error.withOpacity(0.08), shape: BoxShape.circle),
+              child: const Icon(Icons.delete_forever_rounded, color: AppColors.error, size: 36),
+            ),
+            const SizedBox(height: 24),
+            const Text("Remove Assignment?", style: AppTextStyles.titleLarge),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                "Are you sure you want to delete '${task.title}'? This action cannot be undone.",
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: AppColors.background,
+                      ),
+                      child: Text("Keep it", style: AppTextStyles.buttonText.copyWith(color: AppColors.textSecondary)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.error,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      child: Text("Delete", style: AppTextStyles.buttonText.copyWith(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == true) {
+      await ref.read(tasksProvider.notifier).deleteTask(task.id);
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final tasksAsync = ref.watch(tasksProvider);
@@ -297,28 +382,7 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
                                   child: const Icon(Icons.delete_sweep_rounded, color: Colors.white, size: 32),
                                 ),
                                 confirmDismiss: (direction) async {
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  final deletedTask = task;
-                                  
-                                  await ref.read(tasksProvider.notifier).deleteTask(task.id);
-                                  
-                                  messenger.hideCurrentSnackBar();
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      backgroundColor: AppColors.textPrimary,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      content: const Text("Task moved to trash"),
-                                      action: SnackBarAction(
-                                        label: "UNDO",
-                                        textColor: AppColors.primaryLight,
-                                        onPressed: () {
-                                          ref.read(tasksProvider.notifier).createTask(deletedTask);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                  return true;
+                                  return await _showDeleteConfirmation(context, task);
                                 },
                                 child: TaskCard(
                                   task: task,

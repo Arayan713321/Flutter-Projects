@@ -1,12 +1,7 @@
-# Flodo Tasks — Premium Flutter Task Manager
-
-> **Track B: Mobile Specialist** | Final Submission | Candidate: [Your Name]
-
----
-
 ## 🏗️ Design System & UX
 This submission prioritizes **high-fidelity aesthetics** and **smooth performance**, as expected for Track B.
 - **Premium Modern UI**: Custom design system using HSL-based palettes (Indigo/Violet), glassmorphism-inspired inputs, and translucency.
+- **High-Fidelity Interaction**: Replaced native dialogs with **Searchable Bottom Sheets** and premium confirmation patterns.
 - **Micro-Animations**: Staggered list entrance animations, FAB scale effects, and animated count-up statistics.
 - **Informative Empty States**: Purpose-built illustrations and guidance for empty lists and search.
 - **Consistency**: Centralized `AppColors`, `AppTextStyles`, and `AppDimens` tokens in `lib/utils/constants.dart`.
